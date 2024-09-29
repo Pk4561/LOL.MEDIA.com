@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOL Media</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+            color: #333;
+        }
+        header {
+            background-color: #4caf50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        nav {
+            background-color: #333;
+            overflow: hidden;
+        }
+        nav a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+        }
+        nav a:hover {
+            background-color: #4caf50;
+        }
+        .container {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .profile-section, .post-section {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #388e3c;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>LOL Media</h1>
+</header>
+
+<nav>
+    <a href="#home">Home</a>
+    <a href="#contact">Contact</a>
+</nav>
+
+<div class="container">
+    <section class="login-section">
+        <h2>Login</h2>
+        <input type="email" id="login-email" placeholder="Enter your email">
+        <input type="password" id="login-password" placeholder="Enter your password">
+        <button onclick="login()">Login</button>
+    </section>
+
+    <section class="signup-section">
+        <h2>Sign Up</h2>
+        <input type="text" id="signup-username" placeholder="Enter your username">
+        <input type="email" id="signup-email" placeholder="Enter your email">
+        <input type="password" id="signup-password" placeholder="Enter your password">
+        <button onclick="signup()">Sign Up</button>
+    </section>
+
+    <section class="profile-section" id="profile-section" style="display: none;">
+        <h2>Your Profile</h2>
+        <input type="file" id="profile-pic-input" accept="image/*" onchange="uploadProfilePicture()">
+        <button onclick="logout()">Logout</button>
+    </section>
+
+    <section class="post-section" id="post-section">
+        <h2>Upload Media</h2>
+        <input type="file" id="media-input" accept="video/*,image/*">
+        <input type="text" id="media-description" placeholder="Enter a description">
+        <button onclick="uploadMedia()">Post Media</button>
+    </section>
+</div>
+
+<script>
+    let currentUser = null;
+
+    async function signup() {
+        const username = document.getElementById('signup-username').value;
+        const email = document.getElementById('signup-email').value;
+        const password = document.getElementById('signup-password').value;
+
+        const response = await fetch('/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email, password }),
+        });
+        
+        if (response.ok) {
+            alert('Signup successful! You can now log in.');
+        } else {
+            alert('Signup failed!');
+        }
+    }
+
+    async function login() {
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+        });
+
+        if (response.ok) {
+            const userData = await response.json();
+            currentUser = userData.user;
+            document.getElementById('profile-section').style.display = 'block';
+            alert('Login successful!');
+        } else {
+            alert('Invalid email or password');
+        }
+    }
+
+    async function uploadMedia() {
+        const mediaInput = document.getElementById('media-input');
+        const description = document.getElementById('media-description').value;
+
+        const formData = new FormData();
+        formData.append('media', mediaInput.files[0]);
+        formData.append('description', description);
+
+        const response = await fetch('/upload-media', {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (response.ok) {
+            alert('Media uploaded successfully!');
+        } else {
+            alert('Failed to upload media');
+        }
+    }
+
+    function logout() {
+        currentUser = null;
+        document.getElementById('profile-section').style.display = 'none';
+        alert('Logged out successfully!');
+    }
+</script>
+
+</body>
+</html>
